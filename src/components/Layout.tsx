@@ -8,7 +8,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <div className="min-h-screen flex bg-gray-50">
-      {/* Sidebar */}
       {user && (
         <Sidebar
           isOpen={sidebarOpen}
@@ -16,9 +15,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         />
       )}
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col lg:ml-64">
-        {/* Header */}
         {user && (
           <header className="bg-primary text-white p-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -32,8 +29,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </div>
           </header>
         )}
-
-        {/* Page content */}
+        
         <main className="flex-1 p-6">{children}</main>
       </div>
     </div>

@@ -1,4 +1,3 @@
-
 import axios, { type AxiosInstance, AxiosError } from 'axios';
 import toast from 'react-hot-toast';
 

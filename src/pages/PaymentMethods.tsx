@@ -37,7 +37,6 @@ export const PaymentMethods: React.FC = () => {
     fetchPaymentMethods();
   }, []);
 
-  // Add new payment method
   const handleAddMethod = async (data: Partial<PaymentMethod>) => {
     try {
       await api.post('/payment-methods', data);
@@ -51,7 +50,6 @@ export const PaymentMethods: React.FC = () => {
     }
   };
 
-  // Delete payment method
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
