@@ -16,7 +16,7 @@ export const Login: React.FC = () => {
 
   try {
     await login({ email, password });
-    toast.success('Welcome back to Book Store');
+    toast.success('Welcome back to Readscape');
     window.location.hash = '#/';
   } catch (err) {
     toast.error('Login failed');

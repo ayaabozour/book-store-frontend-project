@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
@@ -13,43 +12,51 @@ export const Dashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const [booksRes, ordersRes,authorRes] = await Promise.all([
-          api.get<ApiResponse<Book[]>>('books'),
-          api.get<ApiResponse<Order[]>>('orders'),
-          api.get<ApiResponse<User[]>>('admin/users/authors')
-        ]);
+  const fetchDashboardData = async () => {
+    try {
+      const booksRes = await api.get<ApiResponse<Book[]>>('books');
 
-        const books = booksRes.data;
-        const orders = ordersRes.data;
-        const authors = authorRes.data;
-        
-        setStats({
-          books: books.length,
-          orders: orders.length,
-          users: authors.length,
-          revenue: ordersRes.data.reduce((acc, curr) => acc + Number(curr.total), 0)
-        });
-      } catch (err) {
-        console.error(err);
-        toast.error('Failed fetching data, try again later');
-      } finally {
-        setIsLoading(false);
+      let ordersRes: ApiResponse<Order[]> | null = null;
+      let authorsRes: ApiResponse<User[]> | null = null;
+
+      if (user?.role.name === 'author') {
+        ordersRes = await api.get<ApiResponse<Order[]>>('orders');
       }
-    };
 
-    fetchDashboardData();
-  }, []);
+      if (user?.role.name === 'admin') {
+        authorsRes = await api.get<ApiResponse<User[]>>('admin/users/authors');
+      }
 
+      const books = booksRes.data;
+      const orders = ordersRes?.data || [];
+      const authors = authorsRes?.data || [];
+
+      setStats({
+        books: books.length,
+        orders: orders.length,
+        users: authors.length,
+        revenue: orders.reduce((acc, curr) => acc + Number(curr.total), 0),
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed fetching data, try again later');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchDashboardData();
+}, [user]);
   if (isLoading) return <LoadingSpinner />;
 
-  const cards = [
-    { label: 'Total Books', value: stats.books, icon: BookOpen, color: 'bg-blue-500' },
-    { label: 'Total Orders', value: stats.orders, icon: ShoppingBag, color: 'bg-green-500' },
-    { label: 'Authors', value: stats.users, icon: Users, color: 'bg-purple-500' },
-    { label: 'Total Revenue', value: `$${stats.revenue.toFixed(2)}`, icon: DollarSign, color: 'bg-amber-500' },
+  const allCards = [
+    { label: 'Total Books', value: stats.books, icon: BookOpen, color: 'bg-blue-500', roles: ['admin', 'author'] },
+    { label: 'Total Orders', value: stats.orders, icon: ShoppingBag, color: 'bg-green-500', roles: ['author'] },
+    { label: 'Authors', value: stats.users, icon: Users, color: 'bg-purple-500', roles: ['admin'] },
+    { label: 'Total Revenue', value: `$${stats.revenue.toFixed(2)}`, icon: DollarSign, color: 'bg-amber-500', roles: ['admin', 'author'] },
   ];
+
+  const visibleCards = allCards.filter(card => card.roles.includes(user?.role.name || ''));
 
   return (
     <div className="space-y-8">
@@ -58,19 +65,29 @@ export const Dashboard: React.FC = () => {
         <p className="text-gray-500">Here's what's happening with your library today.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {cards.map((card, i) => (
-          <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center">
-            <div className={`${card.color} p-4 rounded-xl text-white mr-4 shadow-lg`}>
-              <card.icon size={24} />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 font-medium">{card.label}</p>
-              <p className="text-2xl font-bold text-gray-900">{card.value}</p>
-            </div>
-          </div>
-        ))}
+  <div
+  className={`grid gap-6 ${
+    user?.role.name === 'admin'
+      ? 'grid-cols-1 sm:grid-cols-3' 
+      : 'grid-cols-1 sm:grid-cols-3' 
+  }`}
+>
+  {visibleCards.map((card, i) => (
+    <div
+      key={i}
+      className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
+    >
+      <div className={`${card.color} p-4 rounded-xl text-white mr-4 shadow-lg flex-shrink-0`}>
+        <card.icon size={24} />
       </div>
+      <div className="flex-1">
+        <p className="text-sm text-gray-500 font-medium">{card.label}</p>
+        <p className="text-2xl font-bold text-gray-900">{card.value}</p>
+      </div>
+    </div>
+  ))}
+</div>
+
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">

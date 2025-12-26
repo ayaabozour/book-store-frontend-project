@@ -1,40 +1,59 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Books } from './pages/Books';
 import { Orders } from './pages/Orders';
+import { Authors } from './pages/Authors';
+import { PaymentMethods } from './pages/PaymentMethods';
+import { Categories } from './pages/Categories';
 import Layout from './components/Layout';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 
 const App: React.FC = () => {
   const { user, loading } = useAuth();
-  const [route, setRoute] = React.useState(window.location.hash || '#/');
+  const [currentRoute, setCurrentRoute] = useState(window.location.hash || '#/');
 
-  React.useEffect(() => {
-    const onHashChange = () => setRoute(window.location.hash || '#/');
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
+  useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentRoute(window.location.hash || '#/');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  if (loading) return <LoadingSpinner />;
-
-  if (!user && route !== '#/login') {
-    window.location.hash = '#/login';
-    return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
-  const renderRoute = () => {
-    switch (route) {
+  if (!user) {
+    if (currentRoute !== '#/login') window.location.hash = '#/login';
+    return <Login />;
+  }
+
+  const renderRouteContent = () => {
+    switch (currentRoute) {
       case '#/': return <Dashboard />;
       case '#/books': return <Books />;
       case '#/orders': return <Orders />;
+      case '#/authors': return <Authors />;
+      case '#/categories': return <Categories />;
+      case '#/payment-methods': return <PaymentMethods />;
       case '#/login': return <Login />;
-      default: return <Dashboard />;
+      default: return <div className="text-center py-10">Page not found</div>;
     }
   };
 
-  return <Layout>{renderRoute()}</Layout>;
+  return (
+    <Layout>
+      {renderRouteContent()}
+    </Layout>
+  );
 };
 
 export default App;
