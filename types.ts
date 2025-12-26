@@ -21,6 +21,7 @@ export interface User {
 export interface Category {
   id: number;
   name: string;
+  books_count?: number; 
 }
 
 export interface Book {
