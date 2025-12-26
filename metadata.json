@@ -1,0 +1,5 @@
+{
+  "name": "BiblioTrack - Book Inventory System",
+  "description": "A high-performance book inventory management system featuring role-based access for Admins, Authors, and Customers with real-time backend integration.",
+  "requestFramePermissions": []
+}
