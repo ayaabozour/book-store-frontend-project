@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Book, BookFilters } from '../books_types';
 import { api } from '../../../services/api';
 import toast from 'react-hot-toast';
+import { API_ENDPOINTS } from '../../../api/endpoints';
 
 interface PaginatedBooksResponse {
   success: boolean;
@@ -47,7 +48,7 @@ const fetchBooks = useCallback(async () => {
 
   const addBook = async (payload: Partial<Book>) => {
     try {
-      await api.post('/books', payload);
+      await api.post(API_ENDPOINTS.books.store, payload);
       toast.success('Book added successfully');
       fetchBooks();
     } catch {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CreditCard, Zap, ShieldCheck, Plus, CheckCircle2, Trash2 } from 'lucide-react';
 import { api } from '../services/api';
 import type { PaymentMethod, ApiResponse } from '../../types';
+import { API_ENDPOINTS } from "../api/endpoints";
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 import { AddPaymentMethodModal } from '../components/AddPaymentModal';
@@ -39,7 +40,7 @@ export const PaymentMethods: React.FC = () => {
 
   const handleAddMethod = async (data: Partial<PaymentMethod>) => {
     try {
-      await api.post('/payment-methods', data);
+      await api.post(API_ENDPOINTS.paymentMethods.store, data);
       toast.success('Payment method added successfully');
       setShowAddModal(false);
       fetchPaymentMethods();

@@ -32,7 +32,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (credentials: { email: string; password: string }) => {
     const user = await authService.login(credentials);
 
-    // If backend returns token inside user
     if ((user as any).token) {
       localStorage.setItem('auth_token', (user as any).token);
     }
